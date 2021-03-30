@@ -4,6 +4,7 @@ import time
 import random
 import json
 import requests
+from discord.ext import commands
 
 client = discord.Client()
 sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
@@ -21,6 +22,22 @@ starter_encouragements = [
   "Heinrich Himmler would be proud of you"
 
 ]
+starter_calmers = [
+  "Maintain control",
+  "Getting angry is just a waste of energy",
+  "Resolve the argument calmly",
+  "Try to be patient",
+  "Breathe slowly"
+]
+
+starter_happy = [
+  "enjoy your bliss",
+  "joy is ephemeral",
+  "do not pursue material possesions",
+  "Help others",
+  "Be kind to your neighbour"
+]
+
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
   json_data = json.loads(response.text)
@@ -37,8 +54,11 @@ async def on_message(message):
   if any(word in msg for word in sad_words):
     await message.channel.send(random.choice(starter_encouragements))
 
+
+
 @client.event
 async def on_ready():
+  await client.change_presence(status=discord.Status.idle, activity = discord.Game('$help'))
   print('We have logged in as {0.user}'.format(client))
 
 @client.event
@@ -54,11 +74,17 @@ async def on_message(message):
       await message.channel.send(quote)
     else:
       await message.channel.send(random.choice(starter_encouragements))
+  
+  if message.content.startswith('$angry'):
+    await message.channel.send(random.choice(starter_calmers))
 
-    
-
+  if message.content.startswith('$horny'):
+    await message.channel.send('no, go play csgo, reject your horniness')
+  
+  if message.content.startswith('$happy'):
+    await message.channel.send(random.choice(starter_happy))
+  
   if message.content.startswith('$help'):
-    time.sleep(1)
-    await message.channel.send('type "$sad" for help')
+    await message.channel.send('type "$sad","$happy","$angry" or "ʰᵒʳⁿʸ" for help')
 
 client.run(os.getenv('TOKEN'))
