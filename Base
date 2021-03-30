@@ -1,0 +1,64 @@
+import discord 
+import os 
+import time
+import random
+import json
+import requests
+
+client = discord.Client()
+sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
+starter_encouragements = [
+  "Cheer up!",
+  "Cheer up!",
+  "Hang in there.",
+  "Hang in there.",
+  "You are a great person / bot!",
+  "You are a great person / bot!",
+  "Your mother loves you",
+  "Your mother loves you",
+  "At least one person has thought of you",
+  "At least one person has thought of you",
+  "Heinrich Himmler would be proud of you"
+
+]
+def get_quote():
+  response = requests.get("https://zenquotes.io/api/random")
+  json_data = json.loads(response.text)
+  quote = json_data[0]['q'] + " -" + json_data[0]['a']
+  return(quote)
+
+async def on_message(message):
+  if message.author == client.user:
+    return
+
+  msg = message.content
+
+    
+  if any(word in msg for word in sad_words):
+    await message.channel.send(random.choice(starter_encouragements))
+
+@client.event
+async def on_ready():
+  print('We have logged in as {0.user}'.format(client))
+
+@client.event
+async def on_message(message):
+  if message.author == client:
+    return
+  
+  if message.content.startswith('$sad'):
+    SAYOU = random.randint(1,2)
+    #time.sleep(0)
+    if SAYOU == (1):
+      quote = get_quote()
+      await message.channel.send(quote)
+    else:
+      await message.channel.send(random.choice(starter_encouragements))
+
+    
+
+  if message.content.startswith('$help'):
+    time.sleep(1)
+    await message.channel.send('type "$sad" for help')
+
+client.run(os.getenv('TOKEN'))
