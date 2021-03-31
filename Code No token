@@ -7,6 +7,7 @@ import requests
 from discord.ext import commands
 
 client = discord.Client()
+Wallet = 101
 sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
 starter_encouragements = [
   "Cheer up!",
@@ -37,12 +38,12 @@ starter_happy = [
   "Help others",
   "Be kind to your neighbour"
 ]
-
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
   json_data = json.loads(response.text)
   quote = json_data[0]['q'] + " -" + json_data[0]['a']
   return(quote)
+
 
 async def on_message(message):
   if message.author == client.user:
@@ -66,6 +67,8 @@ async def on_message(message):
   if message.author == client:
     return
   
+  Wallet = 101
+  
   if message.content.startswith('$sad'):
     SAYOU = random.randint(1,2)
     #time.sleep(0)
@@ -85,6 +88,58 @@ async def on_message(message):
     await message.channel.send(random.choice(starter_happy))
   
   if message.content.startswith('$help'):
-    await message.channel.send('type "$sad","$happy","$angry" or "ʰᵒʳⁿʸ" for help')
+    await message.channel.send('type "$sad","$happy","$angry", "ʰᵒʳⁿʸ", "$buy", "$work"for help')
+  
+  if message.content.startswith('$buy'):
+    await message.channel.send('You can buy a coupla things, $buygun, $buyhouse, $buylife')
+  
+  if message.content.startswith('$buygun'):
+    if Wallet>100:
+      HasGun = True
+      await message.channel.send('You now have a gun, try $shootgun')
+    else:
+      await message.channel.send('get more money laddie')
+  
+  if message.content.startswith('$shootgun'):
+    if HasGun == True:
+      Misfire = random.randint(1,10)
+      if Misfire < 9:
+        await message.channel.send('BANG BANG BANG')
+      else:
+        await message.channel.send('The gun misfired, wat a shame')
+    else:
+      await message.channel.send('get a gun first u numpty')
 
+  if message.content.startswith('$work'):
+    await message.channel.send('Hello, welcome to the job center, you have a choice of 3 jobs, #1 gives you 10 coins a minute, #2 gives you 25 coins every 2 minutes and #3 gives you 40 coins every 3 minutes. Now, be careful, since if you want money right now you might opt for job number 1, while job 3 gives you a nice pay but at a later time.... Choose which on you want by typing "$one","$two" or "$three" and dont forget, once you choose a job, you cant go back')
+    if message.content.startswith('$one'):
+      Job1 = True
+    if message.content.startswith('$two'):
+      Job2 = True
+    if message.content.startswith('$three'):
+      Job3 = True
+  
+  if Job1 == True:
+    Job2 = False
+    Job3 = False
+    time.sleep(59.999999999999999999999999999999999)
+    Wallet = Wallet+10
+
+  
+  if Job2 == True:
+    Job1 = False
+    Job3 = False
+    time.sleep(119.999999999999999999999999999999999)
+    Wallet = Wallet+25
+  
+  if Job3 == True:
+    Job2 = False
+    Job1 = False
+    time.sleep(179.999999999999999999999999999999999)
+    Wallet = Wallet+40
+
+  if message.content.startswith('$balance'):
+    await message.channel.send('Your balance is : ',Wallet)
+
+  
 client.run(os.getenv('TOKEN'))
