@@ -7,7 +7,12 @@ import requests
 from discord.ext import commands
 
 client = discord.Client()
+
 Wallet = 101
+HasGun = False
+Job1 = False
+Job2 = False
+Job3 = False
 sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
 starter_encouragements = [
   "Cheer up!",
@@ -67,7 +72,11 @@ async def on_message(message):
   if message.author == client:
     return
   
-  Wallet = 101
+  global Wallet
+  global HasGun
+  global Job1
+  global Job2
+  global Job3
   
   if message.content.startswith('$sad'):
     SAYOU = random.randint(1,2)
@@ -88,12 +97,12 @@ async def on_message(message):
     await message.channel.send(random.choice(starter_happy))
   
   if message.content.startswith('$help'):
-    await message.channel.send('type "$sad","$happy","$angry", "ʰᵒʳⁿʸ", "$buy", "$work"for help')
+    await message.channel.send('type "$sad","$happy","$angry", "ʰᵒʳⁿʸ", "$buy", "$work", "$wallet" for help')
   
   if message.content.startswith('$buy'):
-    await message.channel.send('You can buy a coupla things, $buygun, $buyhouse, $buylife')
+    await message.channel.send('You can buy a coupla things, $Bgun, $Bhouse, $Blife')
   
-  if message.content.startswith('$buygun'):
+  if message.content.startswith('$Bgun'):
     if Wallet>100:
       HasGun = True
       await message.channel.send('You now have a gun, try $shootgun')
@@ -111,13 +120,17 @@ async def on_message(message):
       await message.channel.send('get a gun first u numpty')
 
   if message.content.startswith('$work'):
-    await message.channel.send('Hello, welcome to the job center, you have a choice of 3 jobs, #1 gives you 10 coins a minute, #2 gives you 25 coins every 2 minutes and #3 gives you 40 coins every 3 minutes. Now, be careful, since if you want money right now you might opt for job number 1, while job 3 gives you a nice pay but at a later time.... Choose which on you want by typing "$one","$two" or "$three" and dont forget, once you choose a job, you cant go back')
-    if message.content.startswith('$one'):
-      Job1 = True
-    if message.content.startswith('$two'):
-      Job2 = True
-    if message.content.startswith('$three'):
-      Job3 = True
+    await message.channel.send('Hello, welcome to the job center, you have a choice of 3 jobs, #1 gives you 10 coins a minute, #2 gives you 25 coins every 2 minutes and #3 gives you 40 coins every 3 minutes. Now, be careful, since if you want money right now you might opt for job number 1, while job 3 gives you a nice pay but at a later time.... Choose which on you want by typing "$jobone","$jobtwo" or "$jobthree" and dont forget, once you choose a job, you cant go back')
+  
+  if message.content.startswith('$jobone'):
+    Job1 = True
+    await message.channel.send('Congrats on your new job')
+  if message.content.startswith('$jobtwo'):
+    Job2 = True
+    await message.channel.send('Congrats on your new job')
+  if message.content.startswith('$jobthree'):
+    Job3 = True
+    await message.channel.send('Congrats on your new job')
   
   if Job1 == True:
     Job2 = False
@@ -138,8 +151,10 @@ async def on_message(message):
     time.sleep(179.999999999999999999999999999999999)
     Wallet = Wallet+40
 
-  if message.content.startswith('$balance'):
-    await message.channel.send('Your balance is : ',Wallet)
+  
+  if message.content.startswith('$wallet'):
+    await message.channel.send('Your balance is:')
+    await message.channel.send(Wallet)
 
   
 client.run(os.getenv('TOKEN'))
