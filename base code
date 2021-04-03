@@ -10,39 +10,22 @@ import timeit
 
 client = discord.Client()
 
+Bank = {}
 Wallet = 0
 HasGun = False
 Job1 = False
 Job2 = False
 Job3 = False
-bTimer = False
-tTimer = 0
 
-def Job3Salary():
-  global Wallet
-  global tTimer
-  Wallet = Wallet+40
-  print('Func3', Wallet,)
-  tTimer = threading.Timer(179.999999, Job3Salary)
+
+def JobSalary(*arg):
+  global Bank
+  print (arg)
+  Bank[arg[0]][0] += arg[1]
+  print('Func1', Bank)
+  tTimer = threading.Timer(arg[2], JobSalary, arg)
   tTimer.start()
-
-
-
-def Job2Salary():
-  global Wallet
-  global tTimer
-  Wallet = Wallet+25
-  print('Func2', Wallet,)
-  tTimer = threading.Timer(119.999999, Job2Salary)
-  tTimer.start()
-
-def Job1Salary():
-  global tTimer
-  global Wallet
-  Wallet = Wallet+10
-  print('Func1', Wallet)
-  tTimer = threading.Timer(59.9999999, Job1Salary)
-  tTimer.start()
+  Bank[arg[0]][2] = tTimer
 
 sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
 starter_encouragements = [
@@ -103,16 +86,20 @@ async def on_message(message):
   if message.author.bot == True:
     return
   
-  global Wallet
+  global Bank
   global HasGun 
   global Job1 
   global Job2 
   global Job3 
-  global bTimer
-  global tTimer
+  global Wallet
   
   authorid = message.author.id
-  print(authorid)
+
+  if authorid not in Bank:
+    Bank[authorid] = [0, False, 0, False]
+    print (Bank)
+  
+  
   
 
   if message.content.startswith('$sad'):
@@ -146,15 +133,16 @@ async def on_message(message):
     return
   
   if message.content.startswith('$Bgun'):
-    if Wallet>100:
-      HasGun = True
+    if Bank[authorid][0]>100:
+      Bank[authorid][3] = True
+      Bank[authorid][0]-=100
       await message.channel.send('You now have a gun, try $shootgun')
     else:
       await message.channel.send('get more money laddie')
     return
   
   if message.content.startswith('$shootgun'):
-    if HasGun == True:
+    if Bank[authorid][3] == True:
       Misfire = random.randint(1,10)
       if Misfire < 9:
         await message.channel.send('BANG BANG BANG')
@@ -169,41 +157,48 @@ async def on_message(message):
     return
 
   if message.content.startswith('$LeaveJob'):
+    tTimer = Bank[authorid][2]
     tTimer.cancel()
-    bTimer = False
+    Bank[authorid][1] = False
     await message.channel.send('You have now ceased your employment')
     return
   
   if message.content.startswith('$jobone'):
-    if bTimer == True:
+    if Bank[authorid][1] == True: 
+      await message.channel.send(' You cannot apply for a job right now, this could be becuase you are already employed')
       return
     await message.channel.send('Congrats on your new job')
-    tTimer = threading.Timer(59.9999999, Job1Salary)
+    tTimer = threading.Timer(9.9999999, JobSalary, [authorid, 10, 9.99999999999999])
     tTimer.start()
-    bTimer = True
+    Bank[authorid][1] = True
+    Bank[authorid][2] = tTimer
     return
 
   if message.content.startswith('$jobtwo'):
-    if bTimer == True:
+    if Bank[authorid][1] == True: 
+      await message.channel.send(' You cannot apply for a job right now, this could be becuase you are already employed')
       return
     await message.channel.send('Congrats on your new job')
-    tTimer = threading.Timer(119.9999999, Job2Salary)
+    tTimer = threading.Timer(119.9999999, JobSalary, [authorid, 25, 119.9999999999])
     tTimer.start()
-    bTimer = True
+    Bank[authorid][1] = True
+    Bank[authorid][2] = tTimer
     return
 
   if message.content.startswith('$jobthree'):
-    if bTimer == True:
+    if Bank[authorid][1] == True: 
+      await message.channel.send(' You cannot apply for a job right now, this could be becuase you are already employed')
       return
     await message.channel.send('Congrats on your new job')
-    tTimer = threading.Timer(179.999999999, Job3Salary)
+    tTimer = threading.Timer(179.99999999, JobSalary, [authorid, 40, 179.9999999])
     tTimer.start()
-    bTimer = True
+    Bank[authorid][1] = True
+    Bank[authorid][2] = tTimer
     return
 
   if message.content.startswith('$wallet'):
     await message.channel.send('Your balance is:')
-    await message.channel.send(Wallet)
+    await message.channel.send(Bank[authorid][0])
 
   
-client.run(os.getenv('TOKEN')) 
+client.run(os.getenv('TOKEN'))
