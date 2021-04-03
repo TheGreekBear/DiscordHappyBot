@@ -5,14 +5,45 @@ import random
 import json
 import requests
 from discord.ext import commands
+import threading
+import timeit
 
 client = discord.Client()
 
-Wallet = 101
+Wallet = 0
 HasGun = False
 Job1 = False
 Job2 = False
 Job3 = False
+bTimer = False
+tTimer = 0
+
+def Job3Salary():
+  global Wallet
+  global tTimer
+  Wallet = Wallet+40
+  print('Func3', Wallet,)
+  tTimer = threading.Timer(179.999999, Job3Salary)
+  tTimer.start()
+
+
+
+def Job2Salary():
+  global Wallet
+  global tTimer
+  Wallet = Wallet+25
+  print('Func2', Wallet,)
+  tTimer = threading.Timer(119.999999, Job2Salary)
+  tTimer.start()
+
+def Job1Salary():
+  global tTimer
+  global Wallet
+  Wallet = Wallet+10
+  print('Func1', Wallet)
+  tTimer = threading.Timer(59.9999999, Job1Salary)
+  tTimer.start()
+
 sad_words = ["sad", "depressed", "unhappy", "angry", "miserable"]
 starter_encouragements = [
   "Cheer up!",
@@ -69,15 +100,21 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-  if message.author == client:
+  if message.author.bot == True:
     return
   
   global Wallet
-  global HasGun
-  global Job1
-  global Job2
-  global Job3
+  global HasGun 
+  global Job1 
+  global Job2 
+  global Job3 
+  global bTimer
+  global tTimer
   
+  authorid = message.author.id
+  print(authorid)
+  
+
   if message.content.startswith('$sad'):
     SAYOU = random.randint(1,2)
     #time.sleep(0)
@@ -86,21 +123,27 @@ async def on_message(message):
       await message.channel.send(quote)
     else:
       await message.channel.send(random.choice(starter_encouragements))
+    return
   
   if message.content.startswith('$angry'):
     await message.channel.send(random.choice(starter_calmers))
+    return
 
   if message.content.startswith('$horny'):
     await message.channel.send('no, go play csgo, reject your horniness')
+    return
   
   if message.content.startswith('$happy'):
     await message.channel.send(random.choice(starter_happy))
+    return
   
   if message.content.startswith('$help'):
     await message.channel.send('type "$sad","$happy","$angry", "ʰᵒʳⁿʸ", "$buy", "$work", "$wallet" for help')
+    return
   
   if message.content.startswith('$buy'):
     await message.channel.send('You can buy a coupla things, $Bgun, $Bhouse, $Blife')
+    return
   
   if message.content.startswith('$Bgun'):
     if Wallet>100:
@@ -108,6 +151,7 @@ async def on_message(message):
       await message.channel.send('You now have a gun, try $shootgun')
     else:
       await message.channel.send('get more money laddie')
+    return
   
   if message.content.startswith('$shootgun'):
     if HasGun == True:
@@ -118,43 +162,48 @@ async def on_message(message):
         await message.channel.send('The gun misfired, wat a shame')
     else:
       await message.channel.send('get a gun first u numpty')
+    return
 
   if message.content.startswith('$work'):
-    await message.channel.send('Hello, welcome to the job center, you have a choice of 3 jobs, #1 gives you 10 coins a minute, #2 gives you 25 coins every 2 minutes and #3 gives you 40 coins every 3 minutes. Now, be careful, since if you want money right now you might opt for job number 1, while job 3 gives you a nice pay but at a later time.... Choose which on you want by typing "$jobone","$jobtwo" or "$jobthree" and dont forget, once you choose a job, you cant go back')
+    await message.channel.send('Hello, welcome to the job center, you have a choice of 3 jobs, #1 gives you 10 coins a minute, #2 gives you 25 coins every 2 minutes and #3 gives you 40 coins every 3 minutes. Now, be careful, since if you want money right now you might opt for job number 1, while job 3 gives you a nice pay but at a later time.... Choose which on you want by typing "$jobone","$jobtwo" or "$jobthree" and dont forget, once you choose a job, if you are not satisfied you can use "$LeaveJob" to leave the job')
+    return
+
+  if message.content.startswith('$LeaveJob'):
+    tTimer.cancel()
+    bTimer = False
+    await message.channel.send('You have now ceased your employment')
+    return
   
   if message.content.startswith('$jobone'):
-    Job1 = True
+    if bTimer == True:
+      return
     await message.channel.send('Congrats on your new job')
+    tTimer = threading.Timer(59.9999999, Job1Salary)
+    tTimer.start()
+    bTimer = True
+    return
+
   if message.content.startswith('$jobtwo'):
-    Job2 = True
+    if bTimer == True:
+      return
     await message.channel.send('Congrats on your new job')
+    tTimer = threading.Timer(119.9999999, Job2Salary)
+    tTimer.start()
+    bTimer = True
+    return
+
   if message.content.startswith('$jobthree'):
-    Job3 = True
+    if bTimer == True:
+      return
     await message.channel.send('Congrats on your new job')
-  
-  if Job1 == True:
-    Job2 = False
-    Job3 = False
-    time.sleep(59.999999999999999999999999999999999)
-    Wallet = Wallet+10
+    tTimer = threading.Timer(179.999999999, Job3Salary)
+    tTimer.start()
+    bTimer = True
+    return
 
-  
-  if Job2 == True:
-    Job1 = False
-    Job3 = False
-    time.sleep(119.999999999999999999999999999999999)
-    Wallet = Wallet+25
-  
-  if Job3 == True:
-    Job2 = False
-    Job1 = False
-    time.sleep(179.999999999999999999999999999999999)
-    Wallet = Wallet+40
-
-  
   if message.content.startswith('$wallet'):
     await message.channel.send('Your balance is:')
     await message.channel.send(Wallet)
 
   
-client.run(os.getenv('TOKEN'))
+client.run(os.getenv('TOKEN')) 
