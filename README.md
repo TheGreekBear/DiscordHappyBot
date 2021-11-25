@@ -1,0 +1,3 @@
+# DiscordHappyBot
+A bot which replies to $sad and other commands and gives nice motivational quotes and other sort of stuff like a gambling device
+Too many if statements........
