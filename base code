@@ -100,8 +100,6 @@ async def on_message(message):
     print (Bank)
   
   
-  
-
   if message.content.startswith('$sad'):
     SAYOU = random.randint(1,2)
     #time.sleep(0)
